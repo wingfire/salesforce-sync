@@ -1,10 +1,12 @@
 #!/usr/bin/ruby
 
+require 'rubygems'
 require 'yaml'
 require 'optparse'
-gem 'activesupport', '= 3.0.2'
+gem 'activesupport', '= 3.0.3'
 require 'active_support'
 require 'active_support/dependencies'
+require 'active_support/core_ext/hash/keys'
 
 defaults = {
   :lock_file => '/var/run/salesforce_sync.lock'
@@ -24,7 +26,7 @@ opts = OptionParser.new do |opts|
     options[:verbose] = true
   end
 
-  opts.on('-l', '--lock-file',  "Lock file for this run (default: #{options[:lock_file]})") do |file|
+  opts.on('-l', '--lock-file',  "Lock file for this run (default: #{defaults[:lock_file]})") do |file|
     options[:lock_file] = file
   end
 
@@ -49,5 +51,5 @@ unless File.new(options[:lock_file], 'w').flock(File::LOCK_EX|File::LOCK_NB)
   exit 2
 end
 
-ActiveSupport::Dependencies.load_paths << File.join(File.dirname(__FILE__), '../lib')
+ActiveSupport::Dependencies.autoload_paths << File.join(File.dirname(__FILE__), '../lib')
 SalesforceSync.run(options)

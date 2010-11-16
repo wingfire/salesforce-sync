@@ -9,3 +9,7 @@ group :development do
   gem "bundler", "~> 1.0.0"
   gem "jeweler", "~> 1.5.1"
 end
+
+gem 'rforce', '= 0.4.1'
+gem 'activesupport', '= 3.0.3'
+gem 'activerecord', '= 3.0.3'
