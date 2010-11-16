@@ -1,0 +1,53 @@
+#!/usr/bin/ruby
+
+require 'yaml'
+require 'optparse'
+gem 'activesupport', '= 3.0.2'
+require 'active_support'
+require 'active_support/dependencies'
+
+defaults = {
+  :lock_file => '/var/run/salesforce_sync.lock'
+}
+
+options = { }
+
+opts = OptionParser.new do |opts|
+  
+  opts.banner = "Usage: #{File.basename($0)} [OPTIONS]"
+
+  opts.on('-c', '--config-file FILE', 'Config file to use') do |file|
+    options[:config_file] = file
+  end
+
+  opts.on('-v', '--verbose', 'Log debug information') do
+    options[:verbose] = true
+  end
+
+  opts.on('-l', '--lock-file',  "Lock file for this run (default: #{options[:lock_file]})") do |file|
+    options[:lock_file] = file
+  end
+
+  opts.on('-h', '--help', 'Display this help') do
+    puts opts
+    exit
+  end
+  
+end
+
+opts.parse!
+
+if options[:config_file].blank?
+  puts opts
+  exit 1
+end
+
+options = defaults.merge(YAML.load_file(options[:config_file]).symbolize_keys).merge(options)
+
+unless File.new(options[:lock_file], 'w').flock(File::LOCK_EX|File::LOCK_NB)
+  puts 'another process is already running. exiting.'
+  exit 2
+end
+
+ActiveSupport::Dependencies.load_paths << File.join(File.dirname(__FILE__), '../lib')
+SalesforceSync.run(options)
