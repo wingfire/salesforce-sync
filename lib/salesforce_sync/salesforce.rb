@@ -15,7 +15,7 @@ class SalesforceSync::Salesforce
   
   def schema
     @schema ||= object_names.in_groups_of(100, false).inject({ }) do |r, ss|
-      binding.describeSObjects(typed_array(:string, ss))[:describeSObjectsResponse][:result].each do |sobject|
+      rforce.describeSObjects(typed_array(:string, ss))[:describeSObjectsResponse][:result].each do |sobject|
         r[sobject[:name]] = sobject[:fields].index_by { |f| f[:name] }
       end
 
@@ -24,16 +24,16 @@ class SalesforceSync::Salesforce
   end
 
   def object_names
-    @object_names ||= binding.describeGlobal({ })[:describeGlobalResponse][:result][:sobjects].map { |s| s[:name] }    
+    @object_names ||= rforce.describeGlobal({ })[:describeGlobalResponse][:result][:sobjects].map { |s| s[:name] }    
   end
 
   protected
   
-  def binding
-    @binding ||= RForce::Binding.new(@options[:url]).tap do |b|
-                   b.login(@options[:username], "#{@options[:password]}#{@options[:token]}")
-                   b.batch_size = @options[:batch_size] || 2000
-                 end
+  def rforce
+    @rforce ||= RForce::Binding.new(@options[:url]).tap do |b|
+      b.login(@options[:username], "#{@options[:password]}#{@options[:token]}")
+      b.batch_size = @options[:batch_size] || 2000
+    end
   end
 
   def typed_array(type, args)
