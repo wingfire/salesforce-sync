@@ -18,9 +18,10 @@ class SalesforceSync::Database
         type, options = Salesforce::Types.to_sql(f)
         t.send(type, f[:name], options)
       end
-
-      t.primary_key 'Id'
     end
+    
+    @connection.execute("ALTER TABLE %s ADD PRIMARY KEY (%s)" %
+                        [@connection.quote_table_name(object), @connection.quote_column_name('Id')])
   end
 
   def transaction(&block)
