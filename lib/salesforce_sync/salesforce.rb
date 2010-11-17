@@ -13,7 +13,7 @@ class SalesforceSync::Salesforce
   end
   
   def schema
-    @schema ||= sobject_names.in_groups_of(100, false).inject({ }) do |r, ss|
+    @schema ||= object_names.in_groups_of(100, false).inject({ }) do |r, ss|
       binding.describeSObjects(typed_array(:string, ss))[:describeSObjectsResponse][:result].each do |sobject|
         r[sobject[:name]] = sobject[:fields]
       end
@@ -22,8 +22,8 @@ class SalesforceSync::Salesforce
     end
   end
 
-  def sobject_names
-    @sobject_names ||= binding.describeGlobal({ })[:describeGlobalResponse][:result][:sobjects].map { |s| s[:name] }    
+  def object_names
+    @object_names ||= binding.describeGlobal({ })[:describeGlobalResponse][:result][:sobjects].map { |s| s[:name] }    
   end
 
   protected
