@@ -7,25 +7,30 @@ class SalesforceSync::Database
 
   def initialize(options)
     ActiveRecord::Base.establish_connection(options)
-    @connection = ActiveRecord::Base.connection
   end
 
   def sync_table(object, fields)
     logger.info "creating #{object}"
     
-    @connection.create_table(object, :id => false) do |t|
+    db.create_table(object, :id => false) do |t|
       fields.each do |f|
         type, options = Salesforce::Types.to_sql(f)
         t.send(type, f[:name], options)
       end
     end
     
-    @connection.execute("ALTER TABLE %s ADD PRIMARY KEY (%s)" %
-                        [@connection.quote_table_name(object), @connection.quote_column_name('Id')])
+    db.execute("ALTER TABLE %s ADD PRIMARY KEY (%s)" %
+                [db.quote_table_name(object), db.quote_column_name('Id')])
   end
 
   def transaction(&block)
     ActiveRecord::Base.transaction(&block)
+  end
+
+  protected
+  
+  def db
+    ActiveRecord::Base.connection
   end
     
 end
