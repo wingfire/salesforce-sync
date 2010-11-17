@@ -1,6 +1,7 @@
 gem 'rforce', '= 0.4.1'
 require 'rforce'
 require 'active_support/core_ext/array/grouping'
+require 'active_support/core_ext/enumerable'
 
 class SalesforceSync::Salesforce
 
@@ -15,7 +16,7 @@ class SalesforceSync::Salesforce
   def schema
     @schema ||= object_names.in_groups_of(100, false).inject({ }) do |r, ss|
       binding.describeSObjects(typed_array(:string, ss))[:describeSObjectsResponse][:result].each do |sobject|
-        r[sobject[:name]] = sobject[:fields]
+        r[sobject[:name]] = sobject[:fields].index_by { |f| f[:name] }
       end
 
       r
