@@ -5,8 +5,14 @@ class SalesforceSync::Database
 
   include SalesforceSync
 
+  DefaultOptions = { 
+    :syncs_table => '_salesforce_syncs'
+  }
+
   def initialize(options)
-    ActiveRecord::Base.establish_connection(options)
+    @options = DefaultOptions.merge(options)
+    ActiveRecord::Base.establish_connection(@options[:connection])
+    create_syncs_table(@options[:syncs_table]) unless db.table_exists? @options[:syncs_table]
   end
 
   def sync_table(object, fields)
@@ -45,6 +51,12 @@ class SalesforceSync::Database
   end
 
   protected
+
+  def create_syncs_table(name)
+    db.create_table(name) do |t|
+      t.datetime :started_at
+    end
+  end
 
   def create_column(table, field)
     type, options = Salesforce::Types.to_sql(field)
