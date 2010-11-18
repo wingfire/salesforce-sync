@@ -27,6 +27,10 @@ class SalesforceSync::Salesforce
     @object_names ||= rforce.describeGlobal({ })[:describeGlobalResponse][:result][:sobjects].map { |s| s[:name] }    
   end
 
+  def current_time
+    rforce.getServerTimestamp([])[:getServerTimestampResponse][:result][:timestamp]
+  end
+
   protected
   
   def rforce
