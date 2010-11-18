@@ -30,6 +30,10 @@ opts = OptionParser.new do |opts|
     options[:lock_file] = file
   end
 
+  opts.on('-i', '--interactive', 'Drop to interactive shell (irb)') do
+    options[:interactive] = true
+  end
+  
   opts.on('-h', '--help', 'Display this help') do
     puts opts
     exit

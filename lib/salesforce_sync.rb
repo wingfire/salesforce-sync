@@ -10,10 +10,10 @@ module SalesforceSync
     salesforce = Salesforce.new(options[:salesforce].symbolize_keys)
     database = Database.new(options[:database].symbolize_keys)
 
-    database.transaction do 
-      salesforce.schema.each do |object, fields|
-        database.sync_table(object, fields)
-      end
+    if options[:interactive]
+      Interactive.run(binding)
+    else
+      Synchronization.run(salesforce, database)
     end
   end
 
