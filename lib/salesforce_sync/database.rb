@@ -49,7 +49,7 @@ class SalesforceSync::Database
   def sync_record(table, record)
     if db.select_value('SELECT "Id" FROM %s WHERE "Id" = %s' % [table, db.quote(record['Id'])])
       logger.debug('updating %s' % record['Id'])
-      db.update('UPDATE %s SET %s WHERE Id = %s' % [table, values_for_update(record), record['Id']])
+      db.update('UPDATE %s SET %s WHERE "Id" = %s' % [table, values_for_update(record), db.quote(record['Id'])])
     else
       logger.debug('inserting %s' % record['Id'])
       db.insert('INSERT INTO %s %s' % [table, values_for_insert(record)])
