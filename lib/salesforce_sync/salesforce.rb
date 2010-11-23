@@ -5,6 +5,8 @@ require 'active_support/core_ext/enumerable'
 
 class SalesforceSync::Salesforce
 
+  include SalesforceSync
+
   def initialize(options)
     @options = options
   end
@@ -15,8 +17,13 @@ class SalesforceSync::Salesforce
   
   def schema
     @schema ||= object_names.in_groups_of(100, false).inject({ }) do |r, ss|
-      rforce.describeSObjects(typed_array(:string, ss))[:describeSObjectsResponse][:result].each do |sobject|
-        r[sobject[:name]] = sobject[:fields].index_by { |f| f[:name] }
+      call(:describeSObjects, ss).each do |sobject|
+        if sobject[:queryable] == 'true'
+          fields = sobject[:fields].is_a?(Array) ? sobject[:fields] : [sobject[:fields]]
+          r[sobject[:name]] = fields.index_by { |f| f[:name] }
+        else
+          logger.debug('%s is not queryable' % sobject[:name])
+        end
       end
 
       r
@@ -24,24 +31,60 @@ class SalesforceSync::Salesforce
   end
 
   def object_names
-    @object_names ||= rforce.describeGlobal({ })[:describeGlobalResponse][:result][:sobjects].map { |s| s[:name] }    
+    @object_names ||= call(:describeGlobal).sobjects.map { |s| s[:name] }
   end
 
   def current_time
-    rforce.getServerTimestamp([])[:getServerTimestampResponse][:result][:timestamp]
+    call(:getServerTimestamp).timestamp
+  end
+
+  def modified_records_since(object, fields, from, to, &block)
+    timestamp_field = ['LastModifiedDate', 'CreatedDate'].detect { |s| fields.has_key? s }
+    
+    query = 'SELECT %s FROM %s' % [fields.keys.join(', '), object]
+    query << ' WHERE %s < %s' % [timestamp_field, to]
+    query << ' AND %s > %s' % [timestamp_field, from] if from
+
+    result = call(:queryAll, query)
+    logger.debug('querying %s' % object)
+
+    yield(result.records) if result.records
+    
+    while result.done == 'false'
+      logger.debug('querying more %s' % object)
+      result = call(:queryMore, result.queryLocator)
+      yield(result.records)
+    end
   end
 
   protected
-  
+
+  def call(method, arg = nil)
+    args = case arg
+           when Hash
+             arg
+           when Array
+             arg.inject([]) { |a,v| a << :string << v }
+           else
+             { :arg => arg }
+           end
+
+    logger.debug("calling #{method} with #{args.inspect}")
+    
+    result = rforce.send(method, args)
+    
+    if result[:Fault]
+      raise result[:Fault].to_yaml.gsub('\\n', "\n")
+    else
+      result.send("#{method}Response").result
+    end
+  end
+
   def rforce
     @rforce ||= RForce::Binding.new(@options[:url]).tap do |b|
       b.login(@options[:username], "#{@options[:password]}#{@options[:token]}")
       b.batch_size = @options[:batch_size] || 2000
     end
-  end
-
-  def typed_array(type, args)
-    args.inject([]) { |a,v| a << type << v }
   end
   
 end

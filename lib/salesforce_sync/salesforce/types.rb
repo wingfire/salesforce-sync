@@ -7,7 +7,9 @@ module SalesforceSync::Salesforce::Types
 
   def self.sql_type(type)
     case type
-    when 'id', 'base64', 'combobox', 'byte', 'string', 'anytype', 'combobox', 'email', 'encryptedstring', 'masterrecord', 'multipicklist', 'phone', 'picklist', 'reference', 'textarea', 'url'
+    when 'id', 'base64', 'combobox', 'byte', 'string', 'anytype',
+      'combobox', 'email', 'encryptedstring', 'masterrecord', 'multipicklist',
+      'phone', 'picklist', 'reference', 'textarea', 'url'
       :text
     when 'boolean'
       :boolean
@@ -33,6 +35,23 @@ module SalesforceSync::Salesforce::Types
       { :scale => field[:scale].to_i, :precision => field[:precision].to_i }
     else
       { }
+    end
+  end
+  
+  def self.cast_value(field, value)
+    return value unless value
+
+    case field[:type].downcase
+    when 'datetime', 'time', 'date'
+      DateTime.parse(value)
+    when 'boolean'
+      value == 'true'
+    when 'int'
+      value.to_i
+    when 'double', 'currency', 'percent'
+      BigDecimal.new(value)
+    else
+      value
     end
   end
   
