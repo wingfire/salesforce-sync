@@ -47,16 +47,20 @@ class SalesforceSync::Salesforce
 
     result = call(:queryAll, query)
 
-    yield(result.records) if result.records
+    yield(as_array(result.records)) if result.records
     
     while result.done == 'false'
       logger.debug('querying more %s' % object)
       result = call(:queryMore, result.queryLocator)
-      yield(result.records)
+      yield(as_array(result.records))
     end
   end
 
   protected
+
+  def as_array(o)
+    o.is_a?(Array) ? o : [o]
+  end
 
   def call(method, arg = nil)
     args = case arg
