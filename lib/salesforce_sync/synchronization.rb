@@ -27,7 +27,6 @@ module SalesforceSync::Synchronization
         
         salesforce.modified_records_since(object, fields, last_sync, now) do |records|
           records.each do |record|
-            count -= 1
             database.sync_record(table, type_cast_record(fields, record))
           end
         end
