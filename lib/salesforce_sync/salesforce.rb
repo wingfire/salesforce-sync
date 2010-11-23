@@ -46,7 +46,6 @@ class SalesforceSync::Salesforce
     query << ' AND %s > %s' % [timestamp_field, from] if from
 
     result = call(:queryAll, query)
-    logger.debug('querying %s' % object)
 
     yield(result.records) if result.records
     
