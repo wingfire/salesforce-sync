@@ -75,7 +75,7 @@ class SalesforceSync::Database
   protected
 
   def values_for_update(record)
-    record.map do |k, v|
+    record.except('Id').map do |k, v|
       '%s = %s' % [db.quote_column_name(k), db.quote(v)]
     end.join(', ')
   end
