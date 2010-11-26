@@ -53,12 +53,12 @@ class SalesforceSync::Salesforce
 
     result = call(:queryAll, query)
 
-    yield(as_array(result.records)) if result.records
+    as_array(result.records).each(&block) if result.records
     
     while result.done == 'false'
       logger.debug('querying more %s' % object)
       result = call(:queryMore, result.queryLocator)
-      yield(as_array(result.records))
+      as_array(result.records).each(&block)
     end
   end
 

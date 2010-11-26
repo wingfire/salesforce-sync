@@ -25,10 +25,8 @@ module SalesforceSync::Synchronization
       salesforce.schema.each do |object, fields|
         table = database.quote_table_name(object)
         
-        salesforce.modified_records_since(object, fields, last_sync, now) do |records|
-          records.each do |record|
-            database.sync_record(table, type_cast_record(fields, record))
-          end
+        salesforce.modified_records_since(object, fields, last_sync, now) do |record|
+          database.sync_record(table, type_cast_record(fields, record))
         end
       end
     end
