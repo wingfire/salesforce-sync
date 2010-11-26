@@ -1,11 +1,11 @@
-require 'active_support/buffered_logger'
+require 'logger'
 
 module SalesforceSync
 
   mattr_accessor :logger
 
   def self.run(options)
-    init_logger(options[:verbose])
+    init_logger(options[:verbose], options[:debug])
     
     salesforce = Salesforce.new(options[:salesforce].symbolize_keys)
     database = Database.new(options[:database].symbolize_keys)
@@ -17,9 +17,15 @@ module SalesforceSync
     end
   end
 
-  def self.init_logger(verbose)
-    @@logger = ActiveSupport::BufferedLogger.new($stdout)
-    logger.level = verbose ? ActiveSupport::BufferedLogger::DEBUG : ActiveSupport::BufferedLogger::INFO
+  def self.init_logger(verbose, debug)
+    @@logger = Logger.new($stdout)
+    logger.level = if debug
+                     Logger::DEBUG
+                   elsif verbose
+                     Logger::INFO
+                   else
+                     Logger::ERROR
+                   end
   end
   
 end

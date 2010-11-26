@@ -22,8 +22,12 @@ opts = OptionParser.new do |opts|
     options[:config_file] = file
   end
 
-  opts.on('-v', '--verbose', 'Log debug information') do
+  opts.on('-v', '--verbose', 'Log progress information') do
     options[:verbose] = true
+  end
+
+  opts.on('-d', '--debug', 'Log debug information') do
+    options[:debug] = true
   end
 
   opts.on('-l', '--lock-file',  "Lock file for this run (default: #{defaults[:lock_file]})") do |file|
