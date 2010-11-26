@@ -17,21 +17,19 @@ class SalesforceSync::Database
 
   def sync_table(object, fields)
     if db.table_exists? object
-      logger.info "updating table #{object.inspect}"
-
       db.change_table object do |table|
         columns = db.columns(object).index_by { |c| c.name }
         
         (columns.keys - fields.keys).each do |name|
+          logger.info "removing #{name} from #{object}"
           table.remove(name)
         end
 
         (fields.keys - columns.keys).each do |name|
+          logger.info "adding #{name} to #{object}"
           create_column(table, fields[name])
         end
-        
       end
-      
     else
       logger.info "creating table #{object.inspect}"
       
