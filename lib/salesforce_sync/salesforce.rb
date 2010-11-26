@@ -6,6 +6,9 @@ require 'active_support/core_ext/class/attribute'
 
 class SalesforceSync::Salesforce
 
+  class_attribute :blacklist
+  self.blacklist = %w[NewsFeed EntitySubscription UserProfileFeed Vote] + # not allowed to query arbitrarily
+    %w[GroupMember FiscalYearSettings QueueSobject UserLicense Period UserPreference] # lacking timestamps
   
   class_attribute :timestamp_fields
   self.timestamp_fields = %w[LastModifiedDate CreatedDate]
@@ -15,22 +18,35 @@ class SalesforceSync::Salesforce
   def initialize(options)
     @options = options
   end
+  
+  def schema
+    schema_live
+  end
 
   def schema_cache
     @schema ||= YAML.load_file('schema.yml')
   end
+
+  def schema_live_with_caching
+    @schema ||= File.open('schema.yml', 'w') do |f|
+      f.write(schema_live.to_yaml)
+      schema_live
+    end
+  end
   
-  def schema
+  def schema_live
     @schema ||= object_names.in_groups_of(100, false).inject({ }) do |r, ss|
       call(:describeSObjects, ss).each do |sobject|
-        if sobject[:queryable] == 'true'
+        if sobject[:queryable] != 'true'
+          logger.debug('%s is not queryable, skipping' % sobject[:name])
+        elsif blacklist.include?(sobject[:name])
+          logger.debug('%s is blacklisted, skipping' % sobject[:name])
+        else
           fields = sobject[:fields].is_a?(Array) ? sobject[:fields] : [sobject[:fields]]
           r[sobject[:name]] = fields.index_by { |f| f[:name] }
-        else
-          logger.debug('%s is not queryable' % sobject[:name])
         end
       end
-
+      
       r
     end
   end
