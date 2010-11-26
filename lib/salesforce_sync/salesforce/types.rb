@@ -50,6 +50,8 @@ module SalesforceSync::Salesforce::Types
       value.to_i
     when 'double', 'currency', 'percent'
       BigDecimal.new(value)
+    when 'id'
+      value[1]
     else
       value
     end
