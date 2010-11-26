@@ -2,8 +2,13 @@ gem 'rforce', '= 0.4.1'
 require 'rforce'
 require 'active_support/core_ext/array/grouping'
 require 'active_support/core_ext/enumerable'
+require 'active_support/core_ext/class/attribute'
 
 class SalesforceSync::Salesforce
+
+  
+  class_attribute :timestamp_fields
+  self.timestamp_fields = %w[LastModifiedDate CreatedDate]
 
   include SalesforceSync
 
@@ -39,7 +44,8 @@ class SalesforceSync::Salesforce
   end
 
   def modified_records_since(object, fields, from, to, &block)
-    timestamp_field = ['LastModifiedDate', 'CreatedDate'].detect { |s| fields.has_key? s }
+    timestamp_field = timestamp_fields.detect { |s| fields.has_key? s }
+    raise "%s doesn't have a known timestamp field" % object unless timestamp_field
     
     query = 'SELECT %s FROM %s' % [fields.keys.join(', '), object]
     query << ' WHERE %s < %s' % [timestamp_field, to]
