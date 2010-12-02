@@ -8,17 +8,18 @@ require 'active_support/dependencies'
 require 'active_support/core_ext/hash/keys'
 
 defaults = {
-  :lock_file => '/var/run/salesforce_sync.lock'
+  :lock_file => '/var/run/salesforce_sync.lock',
+  :config_file => '/etc/salesforce-sync.yml'
 }
 
 options = { }
 
-opts = OptionParser.new do |opts|
+OptionParser.new do |opts|
   
   opts.banner = "Usage: #{File.basename($0)} [OPTIONS]"
 
-  opts.on('-c', '--config-file FILE', 'Config file to use') do |file|
-    options[:config_file] = file
+  opts.on('-c', '--config-file', "Config file to use (default: #{defaults[:config_file]})") do |file|
+    options[:config_file] = file if file.is_a? String
   end
 
   opts.on('-v', '--verbose', 'Log progress information') do
@@ -42,16 +43,16 @@ opts = OptionParser.new do |opts|
     exit
   end
   
-end
+end.parse!
 
-opts.parse!
+config_file = options[:config_file] || defaults[:config_file]
 
-if options[:config_file].blank?
-  puts opts
+unless File.exist?(config_file)
+  puts "#{config_file} doesn't exist"
   exit 1
 end
 
-options = defaults.merge(YAML.load_file(options[:config_file]).symbolize_keys).merge(options)
+options = defaults.merge(YAML.load_file(config_file).symbolize_keys).merge(options)
 
 unless File.new(options[:lock_file], 'w').flock(File::LOCK_EX|File::LOCK_NB)
   puts 'another process is already running. exiting.'
