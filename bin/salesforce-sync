@@ -18,8 +18,8 @@ OptionParser.new do |opts|
   
   opts.banner = "Usage: #{File.basename($0)} [OPTIONS]"
 
-  opts.on('-c', '--config-file', "Config file to use (default: #{defaults[:config_file]})") do |file|
-    options[:config_file] = file if file.is_a? String
+  opts.on('-c', '--config-file [FILE]', "Config file to use (default: #{defaults[:config_file]})") do |file|
+    options[:config_file] = file
   end
 
   opts.on('-v', '--verbose', 'Log progress information') do
@@ -30,7 +30,7 @@ OptionParser.new do |opts|
     options[:debug] = true
   end
 
-  opts.on('-l', '--lock-file',  "Lock file for this run (default: #{defaults[:lock_file]})") do |file|
+  opts.on('-l', '--lock-file [FILE]',  "Lock file for this run (default: #{defaults[:lock_file]})") do |file|
     options[:lock_file] = file
   end
 
