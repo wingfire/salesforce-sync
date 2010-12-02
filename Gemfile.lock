@@ -34,5 +34,6 @@ DEPENDENCIES
   activesupport (= 3.0.3)
   builder (~> 2.1.2)
   bundler (~> 1.0.0)
+  facets (= 2.8.4)
   jeweler (~> 1.5.1)
   rforce (= 0.4.1)

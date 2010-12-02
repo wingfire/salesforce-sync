@@ -10,6 +10,7 @@ group :development do
   gem "jeweler", "~> 1.5.1"
 end
 
+gem 'facets', '= 2.8.4'
 gem 'builder', '~> 2.1.2'
 gem 'rforce', '= 0.4.1'
 gem 'activesupport', '= 3.0.3'
