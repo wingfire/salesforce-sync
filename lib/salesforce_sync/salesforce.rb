@@ -17,6 +17,7 @@ class SalesforceSync::Salesforce
   def initialize(options)
     @options = options
     @connection = options[:connection].symbolize_keys
+    self.blacklist += options[:blacklist]
   end
   
   def schema
