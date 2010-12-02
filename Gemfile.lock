@@ -1,6 +1,10 @@
 GEM
   remote: http://rubygems.org/
   specs:
+    DerGuteMoritz-rforce (0.4.2)
+      builder (>= 2.0.0)
+      nokogiri (~> 1.4.4)
+      oauth
     activemodel (3.0.3)
       activesupport (= 3.0.3)
       builder (~> 2.1.2)
@@ -13,17 +17,15 @@ GEM
     activesupport (3.0.3)
     arel (2.0.3)
     builder (2.1.2)
-    facets (2.8.4)
     git (1.2.5)
     i18n (0.4.1)
     jeweler (1.5.1)
       bundler (~> 1.0.0)
       git (>= 1.2.5)
       rake
+    nokogiri (1.4.4)
+    oauth (0.4.4)
     rake (0.8.7)
-    rforce (0.4.1)
-      builder (>= 2.0.0)
-      facets (>= 2.4)
     ruby-pg (0.7.9.2008.01.28)
     tzinfo (0.3.23)
 
@@ -31,11 +33,10 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  DerGuteMoritz-rforce (= 0.4.2)
   activerecord (= 3.0.3)
   activesupport (= 3.0.3)
   builder (~> 2.1.2)
   bundler (~> 1.0.0)
-  facets (= 2.8.4)
   jeweler (~> 1.5.1)
-  rforce (= 0.4.1)
   ruby-pg

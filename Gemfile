@@ -1,4 +1,5 @@
 source "http://rubygems.org"
+
 # Add dependencies required to use your gem here.
 # Example:
 #   gem "activesupport", ">= 2.3.5"
@@ -11,8 +12,7 @@ group :development do
 end
 
 gem 'ruby-pg'
-gem 'facets', '= 2.8.4'
 gem 'builder', '~> 2.1.2'
-gem 'rforce', '= 0.4.1'
+gem 'DerGuteMoritz-rforce', '= 0.4.2', :require => 'rforce'
 gem 'activesupport', '= 3.0.3'
 gem 'activerecord', '= 3.0.3'
