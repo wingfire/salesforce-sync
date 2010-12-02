@@ -16,6 +16,7 @@ class SalesforceSync::Salesforce
 
   def initialize(options)
     @options = options
+    @connection = options[:connection].symbolize_keys
   end
   
   def schema
@@ -105,8 +106,8 @@ class SalesforceSync::Salesforce
   end
 
   def rforce
-    @rforce ||= RForce::Binding.new(@options[:url]).tap do |b|
-      b.login(@options[:username], "#{@options[:password]}#{@options[:token]}")
+    @rforce ||= RForce::Binding.new(@connection[:url]).tap do |b|
+      b.login(@connection[:username], "#{@connection[:password]}#{@connection[:token]}")
       b.batch_size = @options[:batch_size] || 2000
     end
   end

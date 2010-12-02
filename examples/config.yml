@@ -1,10 +1,11 @@
 lock_file: /tmp/asd
 
 salesforce:
-  url: https://www.salesforce.com/services/Soap/u/20.0
-  username: foo
-  password: bar
-  token: baz
+  connection:
+    url: https://www.salesforce.com/services/Soap/u/20.0
+    username: foo
+    password: bar
+    token: baz
 
 
 database:
