@@ -1,4 +1,3 @@
-gem 'rforce', '= 0.4.1'
 require 'rforce'
 require 'active_support/core_ext/array/grouping'
 require 'active_support/core_ext/enumerable'
