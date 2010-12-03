@@ -17,7 +17,14 @@ class SalesforceSync::Salesforce
   def initialize(options)
     @options = options
     @connection = options[:connection].symbolize_keys
+    @api_calls = 0
     self.blacklist += options[:blacklist]
+
+    if logger.info?
+      at_exit do
+        logger.info 'used %d Salesforce API calls' % @api_calls
+      end
+    end
   end
   
   def schema
@@ -96,7 +103,8 @@ class SalesforceSync::Salesforce
            end
 
     logger.debug("calling #{method} with #{args.inspect}")
-    
+    @api_calls += 1 if logger.info?
+      
     result = rforce.send(method, args)
     
     if result[:Fault]
