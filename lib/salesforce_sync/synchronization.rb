@@ -2,7 +2,14 @@ module SalesforceSync::Synchronization
 
   extend SalesforceSync
 
-  def self.run(salesforce, database)
+  def self.run(options, salesforce, database)
+    lock_file = File.new(options[:lock_file], 'w')
+
+    unless lock_file.flock(File::LOCK_EX|File::LOCK_NB)
+      puts 'another process is already running. exiting.'
+      exit 2
+    end
+    
     logger.info 'starting schema synchronization'
     start = salesforce.current_time
     
@@ -30,6 +37,8 @@ module SalesforceSync::Synchronization
         end
       end
     end
+
+    lock_file.flock(File::LOCK_UN)
   end
 
   protected

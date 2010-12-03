@@ -13,7 +13,7 @@ module SalesforceSync
     if options[:interactive]
       Interactive.run(binding)
     else
-      Synchronization.run(salesforce, database)
+      Synchronization.run(options, salesforce, database)
     end
   end
 

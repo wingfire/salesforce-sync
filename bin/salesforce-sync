@@ -54,10 +54,5 @@ end
 
 options = defaults.merge(YAML.load_file(config_file).symbolize_keys).merge(options)
 
-unless File.new(options[:lock_file], 'w').flock(File::LOCK_EX|File::LOCK_NB)
-  puts 'another process is already running. exiting.'
-  exit 2
-end
-
 ActiveSupport::Dependencies.autoload_paths << File.join(File.dirname(__FILE__), '../lib')
 SalesforceSync.run(options)
