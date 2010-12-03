@@ -40,6 +40,8 @@ module SalesforceSync::Synchronization
           database.insert_sync_timestamp(object, records.last[timestamp_field.to_sym])
         end
       end
+
+      database.insert_sync_timestamp(object, start)
     end
 
     lock_file.flock(File::LOCK_UN)
