@@ -73,16 +73,17 @@ class SalesforceSync::Salesforce
     
     query = 'SELECT %s FROM %s' % [fields.keys.join(', '), object]
     query << ' WHERE %s < %s' % [timestamp_field, to]
-    query << ' AND %s >= %s' % [timestamp_field, from] if from
+    query << ' AND %s > %s' % [timestamp_field, from] if from
+    query << ' ORDER BY %s ASC' % timestamp_field
     
     result = call(:queryAll, query)
 
-    as_array(result.records).each(&block) if result.records
+    yield(as_array(result.records), timestamp_field) if result.records
     
     while result.done == 'false'
       logger.debug('querying more %s' % object)
       result = call(:queryMore, result.queryLocator)
-      as_array(result.records).each(&block)
+      yield(as_array(result.records), timestamp_field)
     end
   end
 

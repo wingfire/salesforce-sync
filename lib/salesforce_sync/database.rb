@@ -58,10 +58,12 @@ class SalesforceSync::Database
     ActiveRecord::Base.transaction(&block)
   end
 
-  def start_new_sync_for(object, timestamp)
-    last_sync = db.select_value('SELECT started_at FROM %s WHERE object = %s ORDER BY id DESC LIMIT 1' % [syncs_table, db.quote(object)])
+  def last_sync_for(object)
+    db.select_value('SELECT started_at FROM %s WHERE object = %s ORDER BY id DESC LIMIT 1' % [syncs_table, db.quote(object)])
+  end
+
+  def insert_sync_timestamp(object, timestamp)
     db.insert('INSERT INTO %s (object, started_at) VALUES (%s, %s)' % [syncs_table, db.quote(object), db.quote(timestamp)])
-    last_sync
   end
 
   def quote_table_name(name)

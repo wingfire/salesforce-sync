@@ -22,18 +22,22 @@ module SalesforceSync::Synchronization
     logger.info 'starting data synchronization'
     
     salesforce.schema.each do |object, fields|
-      database.transaction do 
-        table = database.quote_table_name(object)
-        last_sync = database.start_new_sync_for(object, start)
+      table = database.quote_table_name(object)
+      last_sync = database.last_sync_for(object)
 
-        if last_sync
-          logger.info 'synchronizing all %s records modified since %s' % [object, last_sync]
-        else
-          logger.info 'synchronizing all %s records (initial)' % object
-        end
-        
-        salesforce.modified_records_since(object, fields, last_sync, start) do |record|
-          database.sync_record(table, type_cast_record(fields, record))
+      if last_sync
+        logger.info 'synchronizing all %s records modified since %s' % [object, last_sync]
+      else
+        logger.info 'synchronizing all %s records (initial)' % object
+      end
+      
+      salesforce.modified_records_since(object, fields, last_sync, start) do |records, timestamp_field|
+        database.transaction do
+          records.each do |record|
+            database.sync_record(table, type_cast_record(fields, record))
+          end
+          
+          database.insert_sync_timestamp(object, records.last[timestamp_field.to_sym])
         end
       end
     end
