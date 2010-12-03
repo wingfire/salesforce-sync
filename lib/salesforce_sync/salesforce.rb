@@ -73,7 +73,7 @@ class SalesforceSync::Salesforce
     
     query = 'SELECT %s FROM %s' % [fields.keys.join(', '), object]
     query << ' WHERE %s < %s' % [timestamp_field, to]
-    query << ' AND %s > %s' % [timestamp_field, from] if from
+    query << ' AND %s >= %s' % [timestamp_field, from] if from
     query << ' ORDER BY %s ASC' % timestamp_field
     
     result = call(:queryAll, query)
