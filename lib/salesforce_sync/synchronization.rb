@@ -6,7 +6,7 @@ module SalesforceSync::Synchronization
     lock_file = File.new(options[:lock_file], 'w')
 
     unless lock_file.flock(File::LOCK_EX|File::LOCK_NB)
-      puts 'another process is already running. exiting.'
+      logger.info 'another process is already running. exiting.'
       exit 2
     end
     
