@@ -58,12 +58,10 @@ class SalesforceSync::Database
     ActiveRecord::Base.transaction(&block)
   end
 
-  def last_sync
-    db.select_value('SELECT started_at FROM %s ORDER BY id DESC LIMIT 1' % syncs_table)
-  end
-
-  def insert_sync_timestamp(timestamp)
-    db.insert('INSERT INTO %s (started_at) VALUES (%s)' % [syncs_table, db.quote(timestamp)])
+  def start_new_sync_for(object, timestamp)
+    last_sync = db.select_value('SELECT started_at FROM %s WHERE object = %s ORDER BY id DESC LIMIT 1' % [syncs_table, db.quote(object)])
+    db.insert('INSERT INTO %s (object, started_at) VALUES (%s, %s)' % [syncs_table, db.quote(object), db.quote(timestamp)])
+    last_sync
   end
 
   def quote_table_name(name)
@@ -94,6 +92,7 @@ class SalesforceSync::Database
 
   def create_syncs_table(name)
     db.create_table(name) do |t|
+      t.text :object
       t.text :started_at
     end
   end
