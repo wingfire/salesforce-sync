@@ -119,6 +119,7 @@ class SalesforceSync::Salesforce
     @rforce ||= RForce::Binding.new(@connection[:url]).tap do |b|
       b.login(@connection[:username], "#{@connection[:password]}#{@connection[:token]}")
       b.batch_size = @options[:batch_size] || 2000
+      b.instance_variable_get(:@server).read_timeout = @options[:timeout]
     end
   end
   
