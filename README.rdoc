@@ -1,8 +1,0 @@
-= salesforce-sync
-
-Export Salesforce objects into a local database.
-
-== Copyright
-
-Copyright (c) 2010 Christof Spies, Moritz Heidkamp. See LICENSE.txt
-for further details.
