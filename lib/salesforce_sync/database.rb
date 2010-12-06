@@ -11,6 +11,7 @@ class SalesforceSync::Database
 
   def initialize(options)
     @options = DefaultOptions.merge(options)
+    ActiveRecord::Base.default_timezone = :utc
     ActiveRecord::Base.establish_connection(@options[:connection])
     create_syncs_table(@options[:syncs_table]) unless db.table_exists? @options[:syncs_table]
   end
@@ -64,12 +65,12 @@ class SalesforceSync::Database
   end
 
   def insert_sync_timestamp(object, timestamp)
-    db.insert("INSERT INTO %s (object, timestamp, created_at) VALUES (%s, %s, statement_timestamp() AT TIME ZONE 'UTC')" %
+    db.insert("INSERT INTO %s (object, timestamp, created_at) VALUES (%s, %s, statement_timestamp())" %
               [syncs_table, db.quote(object), db.quote(timestamp)])
   end
 
   def clean_syncs_table(days)
-    db.delete("DELETE FROM %s AS a WHERE created_at < (SELECT MAX(created_at) FROM %s WHERE object = a.object) AND created_at < statement_timestamp() AT TIME ZONE 'UTC' - interval '%i days'" % 
+    db.delete("DELETE FROM %s AS a WHERE created_at < (SELECT MAX(created_at) FROM %s WHERE object = a.object) AND created_at < statement_timestamp() - interval '%i days'" % 
               [syncs_table, syncs_table, db.quote(days)])
   end
 
