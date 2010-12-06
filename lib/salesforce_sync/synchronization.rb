@@ -9,6 +9,11 @@ module SalesforceSync::Synchronization
       logger.info 'another process is already running. exiting.'
       exit 2
     end
+
+    if options[:clean]
+      logger.info 'deleting _salesforce_syncs entries older than %i days' % options[:clean]
+      database.clean_syncs_table(options[:clean])
+    end
     
     logger.info 'starting schema synchronization'
     start = salesforce.current_time

@@ -37,6 +37,10 @@ OptionParser.new do |opts|
   opts.on('-i', '--interactive', 'Drop to interactive shell (irb)') do
     options[:interactive] = true
   end
+
+  opts.on('-C', '--clean [DAYS]') do |days|
+    options[:clean] = days && days.to_i
+  end
   
   opts.on('-h', '--help', 'Display this help') do
     puts opts

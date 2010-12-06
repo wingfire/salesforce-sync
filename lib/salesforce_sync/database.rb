@@ -68,6 +68,11 @@ class SalesforceSync::Database
               [syncs_table, db.quote(object), db.quote(timestamp)])
   end
 
+  def clean_syncs_table(days)
+    db.delete("DELETE FROM %s WHERE created_at < statement_timestamp() - interval '%i days'" % 
+              [syncs_table, db.quote(days)])
+  end
+
   def quote_table_name(name)
     db.quote_table_name(name)
   end
