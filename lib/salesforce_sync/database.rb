@@ -69,8 +69,8 @@ class SalesforceSync::Database
   end
 
   def clean_syncs_table(days)
-    db.delete("DELETE FROM %s WHERE created_at < statement_timestamp() AT TIME ZONE 'UTC' - interval '%i days'" % 
-              [syncs_table, db.quote(days)])
+    db.delete("DELETE FROM %s AS a WHERE created_at < (SELECT MAX(created_at) FROM %s WHERE object = a.object) AND created_at < statement_timestamp() AT TIME ZONE 'UTC' - interval '%i days'" % 
+              [syncs_table, syncs_table, db.quote(days)])
   end
 
   def quote_table_name(name)
