@@ -12,7 +12,7 @@ following statements:
    
     ALTER TABLE _salesforce_syncs RENAME COLUMN started_at TO timestamp;
     ALTER TABLE _salesforce_syncs ADD COLUMN created_at TIMESTAMP;
-    UPDATE _salesforce_syncs SET created_at = (SELECT statement_timestamp() - (interval '1 hour' * ((SELECT MAX(id) FROM _salesforce_syncs LIMIT 1) - id)));
+    UPDATE _salesforce_syncs SET created_at = (SELECT statement_timestamp() AT TIME ZONE 'UTC' - (interval '1 hour' * ((SELECT MAX(id) FROM _salesforce_syncs LIMIT 1) - id)));
 
 ## Copyright
 

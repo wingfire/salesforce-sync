@@ -64,12 +64,12 @@ class SalesforceSync::Database
   end
 
   def insert_sync_timestamp(object, timestamp)
-    db.insert('INSERT INTO %s (object, timestamp, created_at) VALUES (%s, %s, statement_timestamp())' %
+    db.insert("INSERT INTO %s (object, timestamp, created_at) VALUES (%s, %s, statement_timestamp() AT TIME ZONE 'UTC')" %
               [syncs_table, db.quote(object), db.quote(timestamp)])
   end
 
   def clean_syncs_table(days)
-    db.delete("DELETE FROM %s WHERE created_at < statement_timestamp() - interval '%i days'" % 
+    db.delete("DELETE FROM %s WHERE created_at < statement_timestamp() AT TIME ZONE 'UTC' - interval '%i days'" % 
               [syncs_table, db.quote(days)])
   end
 
